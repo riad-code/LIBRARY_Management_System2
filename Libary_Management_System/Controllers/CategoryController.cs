@@ -20,7 +20,8 @@ namespace Libary_Management_System.Controllers
         // ✅ GET: Load all categories
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.BookCategories.ToListAsync();
+            var categories = await _context.BookCategories.ToListAsync(); // ✅ Correct
+
             return View(categories);
         }
         [HttpGet]
@@ -99,8 +100,11 @@ namespace Libary_Management_System.Controllers
 
         // ✅ POST: Delete category (AJAX)
         [HttpPost]
+        [IgnoreAntiforgeryToken] // ✅ Required if you’re not sending the CSRF token via AJAX
         public async Task<IActionResult> Delete(int id)
         {
+            Console.WriteLine("🔥 Delete called for ID = " + id);
+
             var category = await _context.BookCategories
                 .Include(c => c.Books)
                 .FirstOrDefaultAsync(c => c.CategoryID == id);
@@ -116,6 +120,7 @@ namespace Libary_Management_System.Controllers
 
             return Json(new { success = true, message = "Category deleted successfully." });
         }
+
 
     }
 }
