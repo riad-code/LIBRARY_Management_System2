@@ -1,0 +1,61 @@
+﻿@model Libary_Management_System.Models.BookCategory
+
+@{
+    ViewData["Title"] = "Add New Category";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Add New Book Category</h4>
+                </div>
+                <div class="card-body">
+                    <form id="createForm">
+                        <div class="mb-3">
+                            <label class="form-label">Category Name</label>
+                            <input type="text" name="CategoryName" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="Description" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Create Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $('#createForm').submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/Category/Create',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire('Created!', res.message, 'success')
+                            .then(() => window.location.href = '/Category/Index');
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Oops!', 'Something went wrong.', 'error');
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,75 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">✏️ Edit User Email</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-light">← Back to User List</a>
+                </div>
+                <div class="card-body">
+                    <form id="editEmailForm">
+                        <input type="hidden" id="Id" name="id" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label for="Email" class="form-label">Email</label>
+                            <input id="Email" name="email" class="form-control" value="@Model.Email" />
+                            <span class="text-danger" id="emailValidation"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#editEmailForm').submit(function (e) {
+                e.preventDefault();
+                $('#emailValidation').text('');
+
+                var id = $('#Id').val();
+                var email = $('#Email').val();
+
+                Swal.fire({
+                    title: 'Saving...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                $.ajax({
+                    url: '@Url.Action("EditEmail", "UserManagement")',
+                    type: 'POST',
+                    data: { id: id, email: email },
+                    success: function (response) {
+                        Swal.close();
+                        if (response.success) {
+                            Swal.fire('Success', response.message, 'success').then(() => {
+                                window.location.href = '@Url.Action("Index", "UserManagement")';
+                            });
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.close();
+                        Swal.fire('Error', 'Something went wrong, please try again.', 'error');
+                    }
+                });
+            });
+        });
+    </script>
+}

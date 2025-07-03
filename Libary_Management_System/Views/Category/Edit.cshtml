@@ -1,0 +1,61 @@
+﻿@model Libary_Management_System.Models.BookCategory
+
+@{
+    ViewData["Title"] = "Edit Category";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Ensure you're using the correct layout
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Edit Book Category</h4>
+                </div>
+                <div class="card-body">
+                    <form id="editForm">
+                        <input type="hidden" name="CategoryID" value="@Model.CategoryID" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Category Name</label>
+                            <input type="text" name="CategoryName" value="@Model.CategoryName" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="Description" class="form-control" rows="3">@Model.Description</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Update Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $('#editForm').submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/Category/Edit',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire('Updated!', res.message, 'success')
+                            .then(() => window.location.href = '/Category/Index');
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Oops!', 'Something went wrong.', 'error');
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,84 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+
+@{
+    ViewData["Title"] = "User List";
+}
+
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<h2 class="mb-4"> User Management</h2>
+
+<table class="table table-bordered table-striped">
+        <thead class="table-primary">
+        <tr>
+            <th>Email</th>
+            <th class="text-center">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr id="user-row-@user.Id">
+                <td>@user.Email</td>
+                <td class="text-center">
+                    <a asp-controller="UserManagement" asp-action="Edit" asp-route-id="@user.Id" class="btn btn-warning">
+                        <span class="glyphicon glyphicon-edit"></span> Edit
+                    </a>
+
+                    <button class="btn btn-danger delete-btn" data-user-id="@user.Id">
+                        <span class="glyphicon glyphicon-remove"></span> Delete
+                    </button>
+
+                    <a asp-controller="UserManagement" asp-action="AssignRole" asp-route-id="@user.Id" class="btn btn-info">
+                        <span class="glyphicon glyphicon-cog"></span> Assign Role
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-controller="Admin" asp-action="Dashboard" class="btn btn-sm btn-light">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back
+</a>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".delete-btn").click(function () {
+                var userId = $(this).data("user-id");
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This user will be deleted!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/UserManagement/DeleteUser',
+                            type: 'POST',
+                            data: { id: userId },
+                            success: function (response) {
+                                if (response.success) {
+                                    $('#user-row-' + userId).remove();
+                                    Swal.fire('Deleted!', response.message, 'success');
+                                } else {
+                                    Swal.fire('Error!', response.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
