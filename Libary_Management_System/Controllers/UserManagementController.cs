@@ -75,50 +75,73 @@ namespace Libary_Management_System.Controllers
                 message = result.Succeeded ? "User deleted successfully." : "Failed to delete user."
             });
         }
-
+        // GET: AssignRole
         [HttpGet]
         public async Task<IActionResult> AssignRole(string id)
         {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return NotFound();
 
-            var roles = await _userManager.GetRolesAsync(user);
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var allRoles = _roleManager.Roles.Select(r => r.Name).ToList();
 
             var model = new AssignRoleViewModel
             {
                 UserId = user.Id,
-                Roles = _roleManager.Roles.Select(r => r.Name).ToList(),
-                SelectedRole = roles.FirstOrDefault()
+                Roles = allRoles,
+                SelectedRole = currentRoles.FirstOrDefault()
             };
 
             return View(model);
         }
-
-        // POST: Assign new role via AJAX, returns JSON
+        // POST: AssignRole (AJAX)
         [HttpPost]
-        public async Task<IActionResult> AssignRole(string userId, string selectedRole)
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleViewModel model)
         {
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(selectedRole))
-                return Json(new { success = false, message = "Invalid data." });
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                return Json(new { success = false, message = "User not found." });
-
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRoles);
-
-            var result = await _userManager.AddToRoleAsync(user, selectedRole);
-
-            return Json(new
+            if (string.IsNullOrEmpty(model.UserId) || string.IsNullOrEmpty(model.SelectedRole))
             {
-                success = result.Succeeded,
-                message = result.Succeeded ? "Role assigned successfully." : "Failed to assign role."
-            });
+                return Json(new { success = false, message = "Invalid user or role." });
+            }
+
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            // Remove existing roles
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            if (!removeResult.Succeeded)
+            {
+                return Json(new { success = false, message = "Failed to remove existing roles." });
+            }
+
+            // Assign new role
+            var roleExists = await _roleManager.RoleExistsAsync(model.SelectedRole);
+            if (!roleExists)
+            {
+                return Json(new { success = false, message = "Selected role does not exist." });
+            }
+
+            var addResult = await _userManager.AddToRoleAsync(user, model.SelectedRole);
+            if (!addResult.Succeeded)
+            {
+                return Json(new { success = false, message = "Failed to assign role." });
+            }
+
+            return Json(new { success = true, message = "Role assigned successfully." });
         }
 
-
     }
+
 }
+
+
+
+
 

@@ -98,28 +98,33 @@ namespace Libary_Management_System.Controllers
 
 
 
-        // ✅ POST: Delete category (AJAX)
         [HttpPost]
-        [IgnoreAntiforgeryToken] // ✅ Required if you’re not sending the CSRF token via AJAX
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            Console.WriteLine("🔥 Delete called for ID = " + id);
+            try
+            {
+                var category = await _context.BookCategories
+                   
+                    .FirstOrDefaultAsync(c => c.CategoryID == id);
 
-            var category = await _context.BookCategories
-                .Include(c => c.Books)
-                .FirstOrDefaultAsync(c => c.CategoryID == id);
+                if (category == null)
+                    return Json(new { success = false, message = "Category not found." });
 
-            if (category == null)
-                return Json(new { success = false, message = "Category not found." });
+               // if (category.Books != null && category.Books.Any())
+                   // return Json(new { success = false, message = "Cannot delete. Books exist under this category." });
 
-            if (category.Books != null && category.Books.Any())
-                return Json(new { success = false, message = "Cannot delete. Books exist under this category." });
+                _context.BookCategories.Remove(category);
+                await _context.SaveChangesAsync();
 
-            _context.BookCategories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return Json(new { success = true, message = "Category deleted successfully." });
+                return Json(new { success = true, message = "Category deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
         }
+
 
 
     }

@@ -67,7 +67,7 @@
                     $.ajax({
                         url: '/Category/Delete',
                         type: 'POST',
-                        data: { id: id },
+                        data: { id: id }, // OK since we're binding primitive, not JSON object
                         success: function (res) {
                             if (res.success) {
                                 Swal.fire('Deleted!', res.message, 'success')
@@ -76,12 +76,14 @@
                                 Swal.fire('Error!', res.message, 'error');
                             }
                         },
-                        error: function () {
-                            Swal.fire('Oops!', 'Something went wrong.', 'error');
+                        error: function (xhr, status, error) {
+                            console.log(xhr.responseText);
+                            Swal.fire('Oops!', 'Server error occurred.', 'error');
                         }
                     });
                 }
             });
         });
     </script>
+
 }
