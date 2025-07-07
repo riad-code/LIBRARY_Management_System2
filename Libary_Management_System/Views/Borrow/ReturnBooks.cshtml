@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Libary_Management_System.Models.BorrowRecord>
+@{
+    ViewData["Title"] = "Return Borrowed Books";
+}
+<h2 class="text-xl font-semibold mb-4">Return Borrowed Books</h2>
+
+<table class="table table-bordered w-full">
+    <thead>
+        <tr>
+            <th>Book</th>
+            <th>Borrowed By</th>
+            <th>Borrow Date</th>
+            <th>Due Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+            <tr>
+                <td>@record.Book.Title</td>
+                <td>@record.User.UserName</td>
+                <td>@record.BorrowDate.ToShortDateString()</td>
+                <td>@record.DueDate.ToShortDateString()</td>
+                <td>
+                    <button class="btn btn-sm btn-success return-btn" data-id="@record.BorrowID">Return</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.return-btn').click(function () {
+                const borrowId = $(this).data('id');
+                Swal.fire({
+                    title: 'Confirm Return?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, return it!'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        $.post('/Borrow/ReturnBook', { borrowId }, function (res) {
+                            Swal.fire(res.message, '', res.success ? 'success' : 'error')
+                                .then(() => location.reload());
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

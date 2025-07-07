@@ -1,0 +1,66 @@
+﻿@model Libary_Management_System.Models.Book
+
+@{
+    ViewData["Title"] = "Request Book";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Or _MemberLayout.cshtml if you have separate one
+}
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5><i class="fas fa-book-reader"></i> Request Book</h5>
+        </div>
+        <div class="card-body">
+            <form id="requestBookForm">
+                <input type="hidden" name="BookID" value="@Model.BookID" />
+                <div class="mb-3">
+                    <label class="form-label">Book Title</label>
+                    <input type="text" class="form-control" value="@Model.Title" disabled />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Author</label>
+                    <input type="text" class="form-control" value="@Model.Author" disabled />
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#requestBookForm').submit(function (e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: '@Url.Action("RequestBook", "Borrow")',
+                method: 'POST',
+                data: formData,
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Request Sent!',
+                            text: res.message,
+                            showConfirmButton: false,
+                            timer: 1800
+                        }).then(() => {
+                            window.location.href = '@Url.Action("MyBorrowedBooks", "Borrow")';
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'Something went wrong.', 'error');
+                }
+            });
+        });
+    </script>
+}

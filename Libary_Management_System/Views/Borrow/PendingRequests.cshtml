@@ -1,0 +1,123 @@
+﻿@model List<Libary_Management_System.Models.BookRequest>
+
+@{
+    //Layout = "~/Views/Shared/_LibrarianLayout.cshtml"; // Use your librarian/admin layout
+    ViewData["Title"] = "Pending Book Requests";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-4">📥 Pending Book Requests</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No pending requests at the moment.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-warning">
+                <tr>
+                    <th>User</th>
+                    <th>Book Title</th>
+                    <th>Request Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var req in Model)
+                {
+                    <tr id="requestRow_@req.RequestID">
+                        <td>@req.User.UserName</td>
+                        <td>@req.Book.Title</td>
+                        <td>@req.RequestDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            <button class="btn btn-success btn-sm approveBtn" data-id="@req.RequestID">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="btn btn-danger btn-sm rejectBtn" data-id="@req.RequestID">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Approve request
+            $('.approveBtn').click(function () {
+                var requestId = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Approve this request?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, approve',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/Borrow/Approve',
+                            type: 'POST',
+                            data: { requestId: requestId },
+                            success: function (res) {
+                                if (res.success) {
+                                    Swal.fire('Approved!', res.message, 'success');
+                                    $('#requestRow_' + requestId).fadeOut(500, function () {
+                                        $(this).remove();
+                                    });
+                                } else {
+                                    Swal.fire('Failed', res.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Reject request
+            $('.rejectBtn').click(function () {
+                var requestId = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Reject this request?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, reject',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/Borrow/Reject',
+                            type: 'POST',
+                            data: { requestId: requestId },
+                            success: function (res) {
+                                if (res.success) {
+                                    Swal.fire('Rejected!', res.message, 'success');
+                                    $('#requestRow_' + requestId).fadeOut(500, function () {
+                                        $(this).remove();
+                                    });
+                                } else {
+                                    Swal.fire('Failed', res.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

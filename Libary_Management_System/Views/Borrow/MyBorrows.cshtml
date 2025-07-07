@@ -1,0 +1,51 @@
+﻿@model List<Libary_Management_System.Models.BorrowRecord>
+
+@{
+   // Layout = "~/Views/Shared/_MemberLayout.cshtml"; // Use your member layout here
+    ViewData["Title"] = "My Borrowed Books";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-4">📚 My Borrowed Books</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            You have no borrowed books currently.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-primary">
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Borrow Date</th>
+                    <th>Due Date</th>
+                    <th>Fine (৳)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in Model)
+                {
+                    var overdueDays = (DateTime.Now - record.DueDate).Days;
+                    var fine = overdueDays > 0 ? overdueDays * 10 : 0; // Matches controller logic
+
+                    <tr>
+                        <td>@record.Book.Title</td>
+                        <td>@record.Book.Author</td>
+                        <td>@record.BorrowDate.ToString("yyyy-MM-dd")</td>
+                        <td class="@(overdueDays > 0 ? "text-danger fw-bold" : "")">
+                            @record.DueDate.ToString("yyyy-MM-dd")
+                        </td>
+                        <td class="text-danger">@fine.ToString("0.00")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

@@ -13,5 +13,9 @@ namespace Libary_Management_System.Data
         }
         public DbSet<BookCategory> BookCategories { get; set; }
        public DbSet<Book> Books { get; set; }
+        public DbSet<BookRequest> BookRequests { get; set; }
+        public DbSet<BorrowRecord> BorrowRecords { get; set; }
+       
+
     }
 }
