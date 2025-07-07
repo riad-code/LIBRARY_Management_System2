@@ -1,8 +1,9 @@
 ﻿@model IEnumerable<Libary_Management_System.Models.Book>
 
 @{
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    
     ViewData["Title"] = "Book List";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
@@ -11,7 +12,7 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between mb-3">
-        <h3 class="text-primary">Books</h3>
+        <h3 class="text-primary fw-bold">Manage Books</h3>
         <a asp-action="Create" class="btn btn-success">
             <i class="fas fa-plus"></i> Add New Book
         </a>

@@ -45,7 +45,12 @@
                                 <a class="nav-link fw-bold text-dark" asp-controller="Home" asp-action="Index">Home</a>
                             </li>
 
-                           
+                            @if (User.IsInRole("Admin") || User.IsInRole("Librarian"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link fw-bold text-dark" asp-controller="Book" asp-action="Index">Books</a>
+                                </li>
+                            }
 
 
                           
@@ -58,21 +63,30 @@
                             @if (User.IsInRole("User"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link fw-bold text-dark" asp-controller="Borrow" asp-action="RequestBookList">User Dashboard</a>
+                                    <a class="nav-link fw-bold text-dark" asp-controller="Borrow" asp-action="RequestBookList">Request Book</a>
                                 </li>
-                                
+                                <li class="nav-item">
+                                    <a class="nav-link fw-bold text-dark" asp-controller="Borrow" asp-action="MyBorrows">My Borrowed Books</a>
+                                </li>
                             }
-                           
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link fw-bold text-dark" asp-controller="Borrow" asp-action="PendingRequests">Pending Requests</a>
+                                </li>
                               
-                            
+                            }
                             @if (User.IsInRole("Librarian") )
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link fw-bold text-dark" asp-controller="Borrow" asp-action="PendingRequests2">Librarian Dashboard</a>
+                                    <a class="nav-link fw-bold text-dark" asp-controller="Borrow" asp-action="PendingRequests2">Pending Requests</a>
                                 </li>
 
                             }
-                          
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold text-dark" asp-controller="Borrow" asp-action="MyBorrows">Return Books</a>
+                            </li>
 
                         </ul>
                         <partial name="_LoginPartial" />

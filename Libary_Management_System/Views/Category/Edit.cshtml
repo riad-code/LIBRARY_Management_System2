@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Category";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Ensure you're using the correct layout
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // Ensure you're using the correct layout
 }
 
 <div class="container mt-4">
@@ -26,7 +26,11 @@
                             <textarea name="Description" class="form-control" rows="3">@Model.Description</textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100">Update Category</button>
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-success w-100 me-2">Update Category</button>
+                           
+                        </div>
+                        <a asp-action="Index" class="btn btn-danger w-100">Cancel</a>
                     </form>
                 </div>
             </div>

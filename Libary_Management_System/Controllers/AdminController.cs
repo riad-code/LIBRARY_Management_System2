@@ -26,9 +26,12 @@ namespace Libary_Management_System.Controllers
 
             int totalUsers = users.Count;
             int totalBooks = _context.Books.Count();
+            int pendingRequests = _context.BookRequests.Count(r => r.Status == "Pending");
+
 
             ViewBag.TotalUsers = totalUsers;
             ViewBag.TotalBooks = totalBooks;
+            ViewBag.PendingRequests = pendingRequests;
 
             return View(users);
         }

@@ -153,9 +153,9 @@ namespace Libary_Management_System.Controllers
                 return Json(new { success = false, message = "Book not found." });
 
             // Example: Prevent delete if book is currently borrowed (if you have BorrowRecords)
-            // bool isBorrowed = await _context.BorrowRecords.AnyAsync(br => br.BookID == id && br.ReturnDate == null);
-            // if (isBorrowed)
-            //     return Json(new { success = false, message = "Cannot delete. Book is currently borrowed." });
+             bool isBorrowed = await _context.BorrowRecords.AnyAsync(br => br.BookID == id && br.ReturnDate == null);
+             if (isBorrowed)
+                 return Json(new { success = false, message = "Cannot delete. Book is currently borrowed." });
 
             _context.Books.Remove(book);
             await _context.SaveChangesAsync();

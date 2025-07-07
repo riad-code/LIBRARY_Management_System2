@@ -1,6 +1,7 @@
 ﻿@model Libary_Management_System.Models.Book
 @{
     ViewData["Title"] = "Edit Book";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var categories = ViewBag.Categories as List<Libary_Management_System.Models.BookCategory>;
 }
 

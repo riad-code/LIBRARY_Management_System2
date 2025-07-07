@@ -1,6 +1,7 @@
 ﻿@model Libary_Management_System.Models.AssignRoleViewModel
 
 @{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Assign Role";
 }
 
@@ -16,9 +17,7 @@
                 <h5 class="mb-0">
                     <i class="fas fa-user-shield me-2"></i>Assign Role
                 </h5>
-                <a asp-action="Index" class="btn btn-light btn-sm">
-                    <i class="fas fa-arrow-left"></i> Back to User List
-                </a>
+               
             </div>
 
             <div class="card-body">

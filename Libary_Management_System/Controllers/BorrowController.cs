@@ -61,7 +61,17 @@ namespace Libary_Management_System.Controllers
 
             return View(records);
         }
+        [Authorize(Roles = "Librarian,Admin")]
+        public async Task<IActionResult> PendingRequests2()
+        {
+            var pending = await _context.BookRequests
+                .Include(r => r.Book)
+                .Include(r => r.User)  // <-- Make sure BookRequest has navigation User property
+                .Where(r => r.Status == "Pending")
+                .ToListAsync();
 
+            return View(pending);
+        }
         // LIBRARIAN/ADMIN: View all pending book requests
         [Authorize(Roles = "Librarian,Admin")]
         public async Task<IActionResult> PendingRequests()
@@ -120,28 +130,29 @@ namespace Libary_Management_System.Controllers
             return Json(new { success = true, message = "Request rejected." });
         }
 
-        // LIBRARIAN/ADMIN: Record return
-        [HttpPost]
         [Authorize(Roles = "Librarian,Admin")]
-        public async Task<IActionResult> ReturnBook(int borrowId)
+        public async Task<IActionResult> ReturnBooks()
         {
-            var borrow = await _context.BorrowRecords
+            var borrowed = await _context.BorrowRecords
                 .Include(b => b.Book)
-                .FirstOrDefaultAsync(b => b.BorrowID == borrowId);
+                .Include(b => b.User)
+                .Where(b => b.ReturnDate == null) // only not returned books
+                .ToListAsync();
 
-            if (borrow == null || borrow.ReturnDate != null)
-                return Json(new { success = false, message = "Invalid borrow record." });
-
-            borrow.ReturnDate = DateTime.Now;
-
-            var overdueDays = (borrow.ReturnDate.Value - borrow.DueDate).Days;
-            borrow.FineAmount = overdueDays > 0 ? overdueDays * 10 : 0; // ৳10 per day fine
-
-            borrow.Book.AvailableCopies++;
-
-            await _context.SaveChangesAsync();
-            return Json(new { success = true, message = "Book returned successfully." });
+            return View(borrowed);
         }
+        [Authorize(Roles = "Librarian,Admin")]
+        public async Task<IActionResult> ReturnBooks2()
+        {
+            var borrowed = await _context.BorrowRecords
+                .Include(b => b.Book)
+                .Include(b => b.User)
+                .Where(b => b.ReturnDate == null) // only not returned books
+                .ToListAsync();
+
+            return View(borrowed);
+        }
+
 
         // MEMBER: List of books available for request
         [Authorize(Roles = "User")]
