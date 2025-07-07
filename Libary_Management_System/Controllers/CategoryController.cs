@@ -105,14 +105,14 @@ namespace Libary_Management_System.Controllers
             try
             {
                 var category = await _context.BookCategories
-                   
+                    .Include(c => c.Books) // 🔥 Important!
                     .FirstOrDefaultAsync(c => c.CategoryID == id);
 
                 if (category == null)
                     return Json(new { success = false, message = "Category not found." });
 
-               // if (category.Books != null && category.Books.Any())
-                   // return Json(new { success = false, message = "Cannot delete. Books exist under this category." });
+                if (category.Books != null && category.Books.Any())
+                    return Json(new { success = false, message = "Cannot delete. Books exist under this category." });
 
                 _context.BookCategories.Remove(category);
                 await _context.SaveChangesAsync();

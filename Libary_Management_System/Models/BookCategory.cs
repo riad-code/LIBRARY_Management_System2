@@ -7,7 +7,7 @@ namespace Libary_Management_System.Models
     [Table("BookCategories")]
     public class BookCategory
     {
-        [Key]  // Explicitly declare this as the primary key
+        [Key]  
         public int CategoryID { get; set; }
 
         [Required]

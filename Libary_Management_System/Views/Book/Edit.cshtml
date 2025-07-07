@@ -1,0 +1,128 @@
+﻿@model Libary_Management_System.Models.Book
+@{
+    ViewData["Title"] = "Edit Book";
+    var categories = ViewBag.Categories as List<Libary_Management_System.Models.BookCategory>;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container mt-4">
+    <h3>Edit Book</h3>
+    <form id="editBookForm" enctype="multipart/form-data">
+        <input type="hidden" name="BookID" value="@Model.BookID" />
+
+        <div class="mb-3">
+            <label>Title</label>
+            <input class="form-control" name="Title" value="@Model.Title" required />
+        </div>
+
+        <div class="mb-3">
+            <label>Author</label>
+            <input class="form-control" name="Author" value="@Model.Author" />
+        </div>
+
+        <div class="mb-3">
+            <label>ISBN</label>
+            <input class="form-control" name="ISBN" value="@Model.ISBN" required />
+        </div>
+
+        <div class="mb-3">
+            <label>Publisher</label>
+            <input class="form-control" name="Publisher" value="@Model.Publisher" />
+        </div>
+
+        <div class="mb-3">
+            <label>Published Date</label>
+            <input type="date" name="PublishedDate" class="form-control" value="@Model.PublishedDate?.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="mb-3">
+            <label>Category</label>
+            <select name="CategoryID" class="form-select" required>
+                <option disabled>-- Select Category --</option>
+                @foreach (var cat in categories)
+                {
+                    if (Model.CategoryID == cat.CategoryID)
+                    {
+                        <option value="@cat.CategoryID" selected="selected">@cat.CategoryName</option>
+                    }
+                    else
+                    {
+                        <option value="@cat.CategoryID">@cat.CategoryName</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Total Copies</label>
+            <input type="number" name="TotalCopies" value="@Model.TotalCopies" min="1" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label>Cover Image</label>
+            <input type="file" name="coverImage" id="coverImageInput" class="form-control" accept="image/*" />
+
+            @if (!string.IsNullOrEmpty(Model.CoverImagePath))
+            {
+                <img id="previewImage" src="@Model.CoverImagePath" class="img-thumbnail mt-2" style="max-height:200px;" />
+            }
+            else
+            {
+                <img id="previewImage" class="img-thumbnail mt-2" style="max-height:200px; display:none;" />
+            }
+        </div>
+
+        <button class="btn btn-primary" type="submit">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("coverImageInput").addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const preview = document.getElementById("previewImage");
+                preview.src = e.target.result;
+                preview.style.display = "block";
+            }
+            reader.readAsDataURL(file);
+        });
+
+        $('#editBookForm').submit(function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            $.ajax({
+                url: '/Book/Edit',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated',
+                            text: res.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = '/Book/Index';
+                        });
+                    } else {
+                        Swal.fire('Failed', res.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'Something went wrong.', 'error');
+                }
+            });
+        });
+    </script>
+}

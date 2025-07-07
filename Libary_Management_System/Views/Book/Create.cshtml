@@ -1,0 +1,127 @@
+﻿@model Libary_Management_System.Models.Book
+
+@{
+    ViewData["Title"] = "Add New Book";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-3">Add New Book</h3>
+
+    <form id="createBookForm" enctype="multipart/form-data">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Title *</label>
+                <input type="text" name="Title" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Author</label>
+                <input type="text" name="Author" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">ISBN *</label>
+                <input type="text" name="ISBN" class="form-control" maxlength="20" required />
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">Publisher</label>
+                <input type="text" name="Publisher" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Published Date</label>
+                <input type="date" name="PublishedDate" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                
+                <div class="col-md-6">
+                    <label asp-for="CategoryID" class="form-label">Category *</label>
+                    <select asp-for="CategoryID" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "CategoryID", "CategoryName"))">
+                        <option value="">-- Select Category --</option>
+                    </select>
+                    <span asp-validation-for="CategoryID" class="text-danger"></span>
+                </div>
+
+
+
+
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Total Copies *</label>
+                <input type="number" name="TotalCopies" min="1" max="1000" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Cover Image</label>
+                <input type="file" name="coverImage" accept="image/*" class="form-control" id="coverImageInput" />
+                <img id="previewImage" src="#" style="max-height:100px; margin-top:10px; display:none;" />
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success w-100">
+                <i class="fas fa-save"></i> Save Book
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Image preview
+            $('#coverImageInput').change(function () {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#previewImage').attr('src', e.target.result).show();
+                };
+                reader.readAsDataURL(this.files[0]);
+            });
+
+            // Submit form via AJAX
+            $('#createBookForm').submit(function (e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: '@Url.Action("Create", "Book")',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (res) {
+                        if (res.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Book Added!',
+                                text: res.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = '@Url.Action("Index", "Book")';
+                            });
+                        } else {
+                            let msg = res.message;
+                            if (res.errors && res.errors.length > 0) {
+                                msg += "<br><br><ul>";
+                                res.errors.forEach(err => {
+                                    msg += `<li>${err}</li>`;
+                                });
+                                msg += "</ul>";
+                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Invalid Data!',
+                                html: msg
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Oops!', 'Server error occurred.', 'error');
+                    }
+                });
+            });
+        });
+    </script>
+}

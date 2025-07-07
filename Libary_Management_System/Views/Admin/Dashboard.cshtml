@@ -12,7 +12,7 @@
             <div class="card bg-info text-white shadow">
                 <div class="card-body">
                     👤 Total Users
-                    <h4 class="mt-2">104</h4>
+                    <h4 class="mt-2">@ViewData["TotalUsers"]</h4>
                 </div>
             </div>
         </div>
@@ -20,7 +20,7 @@
             <div class="card bg-success text-white shadow">
                 <div class="card-body">
                     📚 Total Books
-                    <h4 class="mt-2">540</h4>
+                    <h4 class="mt-2">@ViewData["TotalBooks"]</h4>
                 </div>
             </div>
         </div>
@@ -55,7 +55,7 @@
             </a>
         </div>
         <div class="col-md-3">
-            <a asp-controller="Books" asp-action="Index" class="text-decoration-none">
+            <a asp-controller="Book" asp-action="Index" class="text-decoration-none">
                 <div class="card text-white bg-secondary shadow">
                     <div class="card-body text-center">
                         <i class="fas fa-book fa-2x"></i><br />
