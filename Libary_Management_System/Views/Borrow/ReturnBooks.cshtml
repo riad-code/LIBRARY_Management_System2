@@ -1,9 +1,9 @@
 ﻿@model IEnumerable<Libary_Management_System.Models.BorrowRecord>
-
 @{
     ViewData["Title"] = "Return Borrowed Books";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // or _AdminLayout.cshtml based on your layout
+    Layout = ViewBag.Layout as string ?? "~/Views/Shared/_AdminLayout.cshtml";
 }
+
 
 <h2 class="text-xl font-semibold mb-4">Return Borrowed Books</h2>
 

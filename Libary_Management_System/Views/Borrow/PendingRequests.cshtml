@@ -1,10 +1,10 @@
 ﻿@model List<Libary_Management_System.Models.BookRequest>
 
 @{
-   
     ViewData["Title"] = "Pending Book Requests";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = ViewBag.Layout as string ?? "~/Views/Shared/_AdminLayout.cshtml";
 }
+
 
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -61,17 +61,7 @@ namespace Libary_Management_System.Controllers
 
             return View(records);
         }
-        [Authorize(Roles = "Librarian,Admin")]
-        public async Task<IActionResult> PendingRequests2()
-        {
-            var pending = await _context.BookRequests
-                .Include(r => r.Book)
-                .Include(r => r.User)  // <-- Make sure BookRequest has navigation User property
-                .Where(r => r.Status == "Pending")
-                .ToListAsync();
-
-            return View(pending);
-        }
+        
         // LIBRARIAN/ADMIN: View all pending book requests
         [Authorize(Roles = "Librarian,Admin")]
         public async Task<IActionResult> PendingRequests()
@@ -81,6 +71,10 @@ namespace Libary_Management_System.Controllers
                 .Include(r => r.User)  // <-- Make sure BookRequest has navigation User property
                 .Where(r => r.Status == "Pending")
                 .ToListAsync();
+            if (User.IsInRole("Librarian"))
+                ViewBag.Layout = "~/Views/Shared/_LibrarianLayout.cshtml";
+            else
+                ViewBag.Layout = "~/Views/Shared/_AdminLayout.cshtml";
 
             return View(pending);
         }
@@ -136,22 +130,40 @@ namespace Libary_Management_System.Controllers
             var borrowed = await _context.BorrowRecords
                 .Include(b => b.Book)
                 .Include(b => b.User)
-                .Where(b => b.ReturnDate == null) // only not returned books
+                .Where(b => b.ReturnDate == null)
                 .ToListAsync();
+
+            // Decide layout based on role
+            if (User.IsInRole("Librarian"))
+                ViewBag.Layout = "~/Views/Shared/_LibrarianLayout.cshtml";
+            else
+                ViewBag.Layout = "~/Views/Shared/_AdminLayout.cshtml";
 
             return View(borrowed);
         }
+        [HttpPost]
         [Authorize(Roles = "Librarian,Admin")]
-        public async Task<IActionResult> ReturnBooks2()
+        public async Task<IActionResult> ReturnBooks(int borrowId)
         {
-            var borrowed = await _context.BorrowRecords
+            var borrow = await _context.BorrowRecords
                 .Include(b => b.Book)
-                .Include(b => b.User)
-                .Where(b => b.ReturnDate == null) // only not returned books
-                .ToListAsync();
+                .FirstOrDefaultAsync(b => b.BorrowID == borrowId);
 
-            return View(borrowed);
+            if (borrow == null || borrow.ReturnDate != null)
+                return Json(new { success = false, message = "Invalid borrow record." });
+
+            borrow.ReturnDate = DateTime.Now;
+
+            var overdueDays = (borrow.ReturnDate.Value.Date - borrow.DueDate.Date).Days;
+            borrow.FineAmount = overdueDays > 0 ? overdueDays * 10 : 0;
+
+            borrow.Book.AvailableCopies++;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = $"Book returned successfully. Fine: ৳{borrow.FineAmount}" });
         }
+
 
 
         // MEMBER: List of books available for request
