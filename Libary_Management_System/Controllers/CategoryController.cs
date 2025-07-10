@@ -20,7 +20,7 @@ namespace Libary_Management_System.Controllers
         // ✅ GET: Load all categories
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.BookCategories.ToListAsync(); // ✅ Correct
+            var categories = await _context.BookCategories.ToListAsync(); 
 
             return View(categories);
         }

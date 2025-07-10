@@ -28,12 +28,17 @@ namespace Libary_Management_System.Controllers
             int totalBooks = _context.Books.Count();
             int pendingRequests = _context.BookRequests.Count(r => r.Status == "Pending");
 
+            decimal unpaidFines = _context.BorrowRecords
+                .Where(r => r.FineAmount > 0 && r.ReturnDate == null)
+                .Sum(r => (decimal?)r.FineAmount) ?? 0;
 
             ViewBag.TotalUsers = totalUsers;
             ViewBag.TotalBooks = totalBooks;
             ViewBag.PendingRequests = pendingRequests;
+            ViewBag.UnpaidFines = unpaidFines;
 
             return View(users);
         }
+
     }
 }

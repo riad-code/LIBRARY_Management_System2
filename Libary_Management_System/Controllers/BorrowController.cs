@@ -97,7 +97,7 @@ namespace Libary_Management_System.Controllers
                 BookID = request.BookID,
                 UserID = request.UserID,
                 BorrowDate = DateTime.Now,
-                DueDate = DateTime.Now.AddDays(7)
+                DueDate = DateTime.Now.AddDays(2)
             };
 
             _context.BorrowRecords.Add(borrow);

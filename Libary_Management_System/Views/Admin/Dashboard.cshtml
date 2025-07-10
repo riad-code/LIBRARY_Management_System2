@@ -36,10 +36,11 @@
             <div class="card bg-danger text-white shadow">
                 <div class="card-body">
                     💸 Unpaid Fines
-                    <h4 class="mt-2">৳ 1,250</h4>
+                    <h4 class="mt-2">৳ @ViewData["UnpaidFines"]</h4>
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Quick Access Cards -->
@@ -86,7 +87,7 @@
             </a>
         </div>
         <div class="col-md-3">
-            <a asp-controller="Reports" asp-action="Index" class="text-decoration-none">
+            <a asp-controller="Report" asp-action="Index" class="text-decoration-none">
                 <div class="card text-white bg-success shadow">
                     <div class="card-body text-center">
                         <i class="fas fa-chart-bar fa-2x"></i><br />
