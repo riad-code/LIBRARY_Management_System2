@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Reports & Logs";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-4">Reports & Logs</h3>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-2"><button class="btn btn-outline-primary w-100 report-btn" data-type="issued">📘 Issued</button></div>
+        <div class="col-md-2"><button class="btn btn-outline-success w-100 report-btn" data-type="returned">📤 Returned</button></div>
+        <div class="col-md-2"><button class="btn btn-outline-danger w-100 report-btn" data-type="overdue">⚠️ Overdue</button></div>
+        <div class="col-md-3"><button class="btn btn-outline-warning w-100 report-btn" data-type="summary">👥 Member Summary</button></div>
+        <div class="col-md-3"><button class="btn btn-outline-dark w-100 report-btn" data-type="fines">💰 Fine Summary</button></div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4 d-none" id="filterWrapper">
+            <label>Select Period:</label>
+            <select class="form-select" id="reportFilter">
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="reportContent" class="table-responsive"></div>
+</div>
+
+
+   @section Scripts {
+    <script>
+        $(document).ready(function () {
+            let currentReport = "";
+
+            function showLoading() {
+                $('#reportContent').html('<div class="text-center p-3"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+            }
+
+            function loadReport(type, filter = '') {
+                showLoading();
+                let url = '', postData = {};
+
+                if (type === 'issued') {
+                    url = '/Report/GetIssuedBooks';
+                    postData = { filter: filter };
+                } else if (type === 'returned') {
+                    url = '/Report/GetReturnedBooks';
+                } else if (type === 'overdue') {
+                    url = '/Report/GetOverdueBooks';
+                } else if (type === 'summary') {
+                    url = '/Report/GetMemberSummary';
+                } else if (type === 'fines') {
+                    url = '/Report/GetFineSummary';
+                }
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: postData,
+                    success: function (data) {
+                        let html = "<table class='table table-bordered table-striped'>";
+                        if (type === 'issued') {
+                            html += `<thead class="table-primary"><tr><th>Title</th><th>Borrower</th><th>Issued</th><th>Due</th></tr></thead><tbody>`;
+                            data.forEach(item => {
+                                html += `<tr><td>${item.bookTitle}</td><td>${item.borrower}</td><td>${item.borrowDate}</td><td>${item.dueDate}</td></tr>`;
+                            });
+                        } else if (type === 'returned') {
+                            html += `<thead class="table-success"><tr><th>Title</th><th>Borrower</th><th>Return Date</th></tr></thead><tbody>`;
+                            data.forEach(item => {
+                                html += `<tr><td>${item.bookTitle}</td><td>${item.borrower}</td><td>${item.returnDate}</td></tr>`;
+                            });
+                        } else if (type === 'overdue') {
+                            html += `<thead class="table-danger"><tr><th>Title</th><th>Borrower</th><th>Due Date</th></tr></thead><tbody>`;
+                            data.forEach(item => {
+                                html += `<tr><td>${item.bookTitle}</td><td>${item.borrower}</td><td>${item.dueDate}</td></tr>`;
+                            });
+                        } else if (type === 'summary') {
+                            html += `<thead class="table-warning"><tr><th>Member</th><th>Total Borrowed</th><th>Currently Borrowed</th></tr></thead><tbody>`;
+                            data.forEach(item => {
+                                html += `<tr><td>${item.member}</td><td>${item.totalBorrowed}</td><td>${item.currentlyBorrowed}</td></tr>`;
+                            });
+                        } else if (type === 'fines') {
+                            html += `<thead class="table-dark text-white"><tr><th>Member</th><th>Total Fine (৳)</th></tr></thead><tbody>`;
+                            data.forEach(item => {
+                                html += `<tr><td>${item.member}</td><td>${item.totalFine}</td></tr>`;
+                            });
+                        }
+
+                        html += "</tbody></table>";
+                        $('#reportContent').html(html);
+                    },
+                    error: function () {
+                        Swal.fire("Error", "Something went wrong.", "error");
+                    }
+                });
+            }
+
+            $('.report-btn').click(function () {
+                currentReport = $(this).data('type');
+                if (currentReport === 'issued') {
+                    $('#filterWrapper').removeClass('d-none');
+                    loadReport('issued', $('#reportFilter').val());
+                } else {
+                    $('#filterWrapper').addClass('d-none');
+                    loadReport(currentReport);
+                }
+            });
+
+            $('#reportFilter').change(function () {
+                if (currentReport === 'issued') {
+                    loadReport('issued', $(this).val());
+                }
+            });
+        });
+    </script>
+}
+
