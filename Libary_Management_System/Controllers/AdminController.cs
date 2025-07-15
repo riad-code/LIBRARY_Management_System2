@@ -22,23 +22,28 @@ namespace Libary_Management_System.Controllers
         [Route("AdminDashboard")]
         public IActionResult Dashboard()
         {
-            var users = _userManager.Users.ToList(); // fetch all users
+            // Total Users
+            int totalUsers = _context.Users.Count();
 
-            int totalUsers = users.Count;
+            // Total Books
             int totalBooks = _context.Books.Count();
+
+            // Pending Requests
             int pendingRequests = _context.BookRequests.Count(r => r.Status == "Pending");
 
+            // ✅ Unpaid Fines (Assuming you don't track IsFinePaid)
             decimal unpaidFines = _context.BorrowRecords
-                .Where(r => r.FineAmount > 0 && r.ReturnDate == null)
+                .Where(r => r.FineAmount > 0) // If you have IsFinePaid, add && !r.IsFinePaid
                 .Sum(r => (decimal?)r.FineAmount) ?? 0;
 
-            ViewBag.TotalUsers = totalUsers;
-            ViewBag.TotalBooks = totalBooks;
-            ViewBag.PendingRequests = pendingRequests;
-            ViewBag.UnpaidFines = unpaidFines;
+            // Pass data to view
+            ViewData["TotalUsers"] = totalUsers;
+            ViewData["TotalBooks"] = totalBooks;
+            ViewData["PendingRequests"] = pendingRequests;
+            ViewData["UnpaidFines"] = unpaidFines;
 
-            return View(users);
+            return View();
         }
-
     }
 }
+
