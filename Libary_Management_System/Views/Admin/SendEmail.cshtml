@@ -1,0 +1,99 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+   
+}
+
+@model Libary_Management_System.Models.EmailEntity
+
+<div class="card shadow border-0">
+    <div class="card-header bg-primary text-white text-center">
+        <h2>Send Email</h2>
+    </div>
+    <div class="card-body p-4">
+        <form id="sendEmailForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label asp-for="FromEmail" class="form-label">From Email</label>
+                <input asp-for="FromEmail" class="form-control" placeholder="Enter your email" />
+                <span asp-validation-for="FromEmail" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ToEmailAddress" class="form-label">To Email</label>
+                <input asp-for="ToEmailAddress" class="form-control" placeholder="Enter recipient email" />
+                <span asp-validation-for="ToEmailAddress" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Subject" class="form-label">Subject</label>
+                <input asp-for="Subject" class="form-control" placeholder="Enter subject" />
+                <span asp-validation-for="Subject" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="EmailBody" class="form-label">Message</label>
+                <textarea asp-for="EmailBody" class="form-control" rows="5" placeholder="Write your message here..."></textarea>
+                <span asp-validation-for="EmailBody" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AttatchmentURL" class="form-label">Attachment</label>
+                <input type="file" name="attachment" class="form-control" />
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-send"></i> Send Email
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sendEmailForm').submit(function (e) {
+                e.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: '@Url.Action("SendEmail", "Admin")', // Adjust controller/action
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function () {
+                        Swal.fire({
+                            title: 'Sending...',
+                            text: 'Please wait while the email is being sent',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    },
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Email Sent!',
+                            text: response.message || 'The email was successfully sent.',
+                            confirmButtonColor: '#3085d6'
+                        });
+                        $('#sendEmailForm')[0].reset();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: xhr.responseText || 'Something went wrong while sending the email.',
+                            confirmButtonColor: '#d33'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

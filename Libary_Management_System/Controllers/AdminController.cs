@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq; // for ToList
+using System.Net.Mail;
+using System.Net;
 
 namespace Libary_Management_System.Controllers
 {
@@ -44,6 +46,60 @@ namespace Libary_Management_System.Controllers
 
             return View();
         }
+
+        [HttpGet]
+        public IActionResult SendEmail()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendEmail(EmailEntity model, IFormFile attachment)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Please fill all required fields correctly.");
+            }
+
+            try
+            {
+                var smtpClient = new SmtpClient("smtp.gmail.com")
+                {
+                    Port = 587,
+                    Credentials = new NetworkCredential("ahriad.cse@gmail.com", "ldwh euxp jwig qpwt"), // Replace here
+                    EnableSsl = true
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(model.FromEmail ?? "ahriad.cse@gmail.com"), // Must match credentials ideally
+                    Subject = model.Subject,
+                    Body = model.EmailBody,
+                    IsBodyHtml = true
+                };
+
+                mailMessage.To.Add(model.ToEmailAddress);
+
+                if (attachment != null && attachment.Length > 0)
+                {
+                    var ms = new MemoryStream();
+                    await attachment.CopyToAsync(ms);
+                    ms.Position = 0;
+                    mailMessage.Attachments.Add(new Attachment(ms, attachment.FileName, attachment.ContentType));
+                }
+
+                await smtpClient.SendMailAsync(mailMessage);
+
+                return Json(new { success = true, message = "Email sent successfully!" });
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message;
+                if (ex.InnerException != null)
+                    error += " Inner Exception: " + ex.InnerException.Message;
+
+                return BadRequest("Error sending email: " + error);
+            }
+        }
     }
 }
-
